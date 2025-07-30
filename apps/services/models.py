@@ -36,6 +36,9 @@ class ExchangeRateLog(BaseModel):
         verbose_name_plural = _("Exchange Rate Logs")
         ordering = ["-fetched_at"]
 
+    def __str__(self):
+        return f"{self.base_currency} to {self.target_currency}: {self.rate}"
+
 
 class Plan(BaseModel):
     name = models.CharField(max_length=100, verbose_name=_("Plan Name"))

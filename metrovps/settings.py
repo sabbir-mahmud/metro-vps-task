@@ -159,3 +159,6 @@ CORS_ALLOWED_ORIGINS = [
     "https://education.oneislam.pro",
     "https://hospital.oneislam.pro",
 ]
+
+
+EXCHANGE_RATE_API_KEY = os.getenv("EXCHANGE_RATE_API_KEY")
