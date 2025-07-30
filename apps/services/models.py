@@ -37,7 +37,7 @@ class ExchangeRateLog(BaseModel):
         ordering = ["-fetched_at"]
 
     def __str__(self):
-        return f"{self.base_currency} to {self.target_currency}: {self.rate}"
+        return f"{self.base_currency} to {self.target_currency}: {self.rate} ({self.fetched_at})"
 
 
 class Plan(BaseModel):

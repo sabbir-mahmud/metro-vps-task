@@ -5,31 +5,37 @@ from metrovps.settings import EXCHANGE_RATE_API_KEY
 
 
 class RateFetcher:
-    BASE_CURRENCY = "USD"
-    API_URL = f"https://v6.exchangerate-api.com/v6/{EXCHANGE_RATE_API_KEY}/latest/{BASE_CURRENCY}"
+    def __init__(self, base_currency="USD", target_currency="BDT", store_in_db=True):
+        self.base_currency = base_currency.upper()
+        self.target_currency = target_currency.upper()
+        self.store_in_db = store_in_db
 
-    def fetch_rates(self):
+    @property
+    def api_url(self):
+        return f"https://v6.exchangerate-api.com/v6/{EXCHANGE_RATE_API_KEY}/pair/{self.base_currency}/{self.target_currency}"
+
+    def fetch_rate(self):
         try:
-            response = requests.get(self.API_URL)
+            response = requests.get(self.api_url)
             response.raise_for_status()
             data = response.json()
 
-            rates = data.get("conversion_rates")
-            if not rates:
-                return
+            rate = data.get("conversion_rate")
+            if rate is None:
+                return None
 
-            self.store_rates(rates)
+            if self.store_in_db:
+                self.store_rate(rate)
+
+            return rate
+
         except requests.RequestException as e:
-            print(f"Failed to fetch exchange rates: {e}")
+            print(f"Error fetching exchange rate: {e}")
+            return None
 
-    def store_rates(self, rates):
-        ExchangeRateLog.objects.bulk_create(
-            [
-                ExchangeRateLog(
-                    base_currency=self.BASE_CURRENCY,
-                    target_currency=currency,
-                    rate=rate,
-                )
-                for currency, rate in rates.items()
-            ]
+    def store_rate(self, rate):
+        ExchangeRateLog.objects.create(
+            base_currency=self.base_currency,
+            target_currency=self.target_currency,
+            rate=rate,
         )
