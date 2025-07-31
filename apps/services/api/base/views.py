@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from apps.core.utils.paginator import StandardPagination
 from apps.services.api.base.serializers import (
     BaseSubscriptionSerializer,
+    SubscriptionCancelSerializer,
     SubscriptionGETSerializer,
 )
 from apps.services.models import Plan, Subscription
@@ -102,4 +103,42 @@ class BaseSubscriptionsModelView(viewsets.ModelViewSet):
         return Response(
             {"error": "Method not allowed"},
             status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+
+class BaseSubscriptionCancelAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        sr = SubscriptionCancelSerializer(data=request.data)
+        sr.is_valid(raise_exception=True)
+
+        subscription = Subscription.objects.filter(
+            id=sr.validated_data.get("plan").id
+        ).first()
+
+        if not subscription:
+            return Response(
+                {"error": "Invalid subscription id!"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if subscription.user != request.user:
+            return Response(
+                {"error": "You are not authorized to cancel this subscription!"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if subscription.status != Subscription.STATUS_CHOICES.ACTIVE:
+            return Response(
+                {"error": "Subscription is not active!"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        subscription.status = Subscription.STATUS_CHOICES.CANCELLED
+        subscription.save(update_fields=["status"])
+
+        return Response(
+            {"message": "Subscription cancelled successfully!"},
+            status=status.HTTP_200_OK,
         )

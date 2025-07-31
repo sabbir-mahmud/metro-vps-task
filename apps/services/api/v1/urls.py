@@ -10,4 +10,9 @@ router.register("subscriptions", views.SubscriptionsModelView, basename="subscri
 urlpatterns = [
     path("", include(router.urls)),
     path("exchange-rate/", views.ExchangeRateAPIView.as_view(), name="exchange-rate"),
+    path(
+        "cancel-subscription/",
+        views.SubscriptionCancelAPIView.as_view(),
+        name="cancel-subscription",
+    ),
 ]

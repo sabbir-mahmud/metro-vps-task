@@ -23,3 +23,10 @@ class BaseSubscriptionSerializer(serializers.ModelSerializer):
 class SubscriptionGETSerializer(BaseSubscriptionSerializer):
     user = UserSerializer(read_only=True)
     plan = BasePlanSerializer(read_only=True)
+
+
+class SubscriptionCancelSerializer(serializers.Serializer):
+    reason = serializers.CharField(required=False, allow_null=False, allow_blank=False)
+    plan = serializers.PrimaryKeyRelatedField(
+        queryset=Plan.objects.all(), required=True
+    )
