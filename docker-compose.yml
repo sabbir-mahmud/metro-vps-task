@@ -39,7 +39,10 @@ services:
   web:
     build: .
     container_name: django_web
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
@@ -47,13 +50,42 @@ services:
     depends_on:
       - db
       - redis
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_HOST: ${MYSQL_HOST}
-      REDIS_HOST: ${REDIS_HOST}
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  celery_worker:
+    build: .
+    container_name: celery_worker
+    command: celery -A metrovps worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - web
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  celery_beat:
+    build: .
+    container_name: celery_beat
+    command: >
+      sh -c "
+        celery -A metrovps beat --loglevel=info"
+    volumes:
+      - .:/app
+      - ./wait-for-it.sh:/app/wait-for-it.sh
+    depends_on:
+      - db
+      - redis
+      - web
+      - celery_worker
+    env_file:
+      - .env
     networks:
       - backend
 
