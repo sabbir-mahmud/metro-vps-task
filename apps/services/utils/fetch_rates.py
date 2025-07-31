@@ -27,7 +27,7 @@ class RateFetcher:
             if self.store_in_db:
                 self.store_rate(rate)
 
-            return rate
+            return data
 
         except requests.RequestException as e:
             print(f"Error fetching exchange rate: {e}")

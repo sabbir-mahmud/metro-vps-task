@@ -3,11 +3,11 @@ from rest_framework.response import Response
 
 
 class StandardPagination(PageNumberPagination):
-    page_size = 25
+    page_size = 10
     page_size_query_param = "page_size"
 
     def get_paginated_response(self, data):
-        page_size_limit = self.request.GET.get("page_size", 25)
+        page_size_limit = self.request.GET.get("page_size", self.page_size)
         self.page_size = page_size_limit
         return Response(
             {
