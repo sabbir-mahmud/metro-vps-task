@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Subscriptions{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <div class="card bg-dark text-white shadow">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div>
+        <h4 class="mb-0">User Subscriptions</h4>
+      </div>
+      
+      <div class="d-flex align-items-center">
+        <small class="text-white me-3">{{ users.paginator.count }} users</small>
+
+        <form method="get" class="d-flex align-items-center" role="search" autocomplete="off">
+          <input
+            type="text"
+            name="username"
+            value="{{ request.GET.username|default:'' }}"
+            class="form-control form-control-sm me-2"
+            placeholder="Filter by username"
+            aria-label="Filter by username"
+          />
+          <button type="submit" class="btn btn-sm btn-primary me-2">Filter</button>
+          {% if request.GET.username %}
+          <a href="{% url 'subscriptions' %}" class="btn btn-sm btn-outline-light">Clear</a>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover table-dark align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Username</th>
+            <th scope="col">Plan</th>
+            <th scope="col">Start Date</th>
+            <th scope="col">End Date</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            {% with user.subscriptions.all as subs %}
+              {% if subs %}
+                {% for sub in subs %}
+                  <tr>
+                    {% if forloop.first %}
+                      <td rowspan="{{ subs|length }}" class="align-middle">{{ user.get_full_name|default:user.username }}</td>
+                    {% endif %}
+                    <td>{{ sub.plan.name }}</td>
+                    <td>{{ sub.start_date|date:"M d, Y" }}</td>
+                    <td>{{ sub.end_date|date:"M d, Y" }}</td>
+                    <td>
+                      <span class="badge
+                        {% if sub.status == 'active' %}bg-success
+                        {% elif sub.status == 'cancelled' %}bg-warning text-dark
+                        {% else %}bg-secondary
+                        {% endif %}">
+                        {{ sub.status|title }}
+                      </span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td>{{ user.get_full_name|default:user.username }}</td>
+                  <td colspan="4" class="text-center fst-italic text-muted">No subscriptions</td>
+                </tr>
+              {% endif %}
+            {% endwith %}
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted fst-italic">No subscriptions found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="d-flex justify-content-end p-3">
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item {% if not users.has_previous %}disabled{% endif %}">
+          <a
+            class="page-link"
+            href="{% if users.has_previous %}?page={{ users.previous_page_number }}{% else %}#{% endif %}{% if request.GET.username %}&username={{ request.GET.username }}{% endif %}"
+            tabindex="-1"
+            aria-disabled="{% if not users.has_previous %}true{% else %}false{% endif %}"
+          >
+            Previous
+          </a>
+        </li>
+
+        {% for i in users.paginator.page_range %}
+          <li class="page-item {% if users.number == i %}active{% endif %}">
+            <a
+              class="page-link"
+              href="?page={{ i }}{% if request.GET.username %}&username={{ request.GET.username }}{% endif %}"
+            >
+              {{ i }}
+            </a>
+          </li>
+        {% endfor %}
+
+        <li class="page-item {% if not users.has_next %}disabled{% endif %}">
+          <a
+            class="page-link"
+            href="{% if users.has_next %}?page={{ users.next_page_number }}{% else %}#{% endif %}{% if request.GET.username %}&username={{ request.GET.username }}{% endif %}"
+            aria-disabled="{% if not users.has_next %}true{% else %}false{% endif %}"
+          >
+            Next
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+{% endblock %}
