@@ -11,12 +11,17 @@
    cd metro-vps-task
    ```
 
-3. Create a `.env` file by copying the sample:
-   Update `EXCHANGE_RATE_API_KEY` with a valid API key.
+3. Create a `.env` file:
 
-   ```bash
-   cp .env.sample .env
-   ```
+   * Copy the example file:
+
+     ```bash
+     cp .env.sample .env
+     ```
+   * Open `.env` and update the following:
+
+     * `EXCHANGE_RATE_API_KEY`: Replace with your valid API key from [ExchangeRate API](https://www.exchangerate-api.com/)
+     * Any other environment-specific settings as required by your setup
 
 4. Build and start the containers:
 
@@ -108,7 +113,9 @@ Cancels an existing subscription. Optional `reason` field for feedback.
 **Required field:**
 
 * `plan`: ID of the plan to cancel.
-  **Optional field:**
+
+**Optional field:**
+
 * `reason`: Text explaining why the subscription is being canceled.
 
 ```bash
