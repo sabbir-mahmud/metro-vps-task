@@ -37,3 +37,90 @@ To explore the project with sample data, run:
 ## Running Celery
 
 Celery and Celery Beat are included in the Docker setup. No extra configuration or commands are required to run Celery.
+
+## API Endpoints
+
+**POSTMAN Documentation:** [View Here](https://documenter.getpostman.com/view/20333890/2sB3BALsXT)
+
+### Authentication
+
+#### Get Token
+
+Endpoint: `POST /auth/api/v1/token/`
+Generates access and refresh tokens for a user.
+
+```bash
+curl --location 'http://127.0.0.1:8000/auth/api/v1/token/' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "username": "demoStaff",
+    "password": "demo@112"
+}'
+```
+
+#### Refresh Token
+
+Endpoint: `POST /auth/api/v1/token/refresh/`
+Refreshes the access token using a valid refresh token.
+
+```bash
+curl --location 'http://127.0.0.1:8000/auth/api/v1/token/refresh/' \
+--header 'Content-Type: application/json' \
+--data '{
+    "refresh": "<your-refresh-token>"
+}'
+```
+
+### Subscription Management
+
+#### Create a Subscription
+
+Endpoint: `POST /services/api/v1/subscriptions/`
+Creates a new subscription to a plan (authentication required).
+
+```bash
+curl --location 'http://127.0.0.1:8000/services/api/v1/subscriptions/' \
+--header 'Authorization: Bearer <access-token>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "plan": 1
+}'
+```
+
+#### List Subscriptions
+
+Endpoint: `GET /services/api/v1/subscriptions/`
+Retrieves a list of all active subscriptions for the authenticated user.
+
+```bash
+curl --location 'http://127.0.0.1:8000/services/api/v1/subscriptions/' \
+--header 'Authorization: Bearer <access-token>'
+```
+
+#### Cancel a Subscription
+
+Endpoint: `POST /services/api/v1/cancel-subscription/`
+Cancels an existing subscription. Optional `reason` field for feedback.
+
+```bash
+curl --location 'http://127.0.0.1:8000/services/api/v1/cancel-subscription/' \
+--header 'Authorization: Bearer <access-token>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "plan": 1,
+    "reason": "Performance Issue"
+}'
+```
+
+### Exchange Rate API
+
+#### Get Exchange Rate
+
+Endpoint: `GET /services/api/v1/exchange-rate/?base=USD&target=BDT`
+Fetches real-time exchange rates between two currencies using a public API.
+
+```bash
+curl --location 'http://127.0.0.1:8000/services/api/v1/exchange-rate/?base=usd&target=bdt'
+```
+
+**Note:** All protected endpoints require a valid Bearer token in the `Authorization` header.
