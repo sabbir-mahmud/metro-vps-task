@@ -12,6 +12,7 @@
    ```
 
 3. Create a `.env` file by copying the sample:
+   Update `EXCHANGE_RATE_API_KEY` with a valid API key.
 
    ```bash
    cp .env.sample .env
@@ -77,6 +78,9 @@ curl --location 'http://127.0.0.1:8000/auth/api/v1/token/refresh/' \
 
 Endpoint: `POST /services/api/v1/subscriptions/`
 Creates a new subscription to a plan (authentication required).
+**Required field:**
+
+* `plan`: ID of the plan the user wants to subscribe to.
 
 ```bash
 curl --location 'http://127.0.0.1:8000/services/api/v1/subscriptions/' \
@@ -101,6 +105,11 @@ curl --location 'http://127.0.0.1:8000/services/api/v1/subscriptions/' \
 
 Endpoint: `POST /services/api/v1/cancel-subscription/`
 Cancels an existing subscription. Optional `reason` field for feedback.
+**Required field:**
+
+* `plan`: ID of the plan to cancel.
+  **Optional field:**
+* `reason`: Text explaining why the subscription is being canceled.
 
 ```bash
 curl --location 'http://127.0.0.1:8000/services/api/v1/cancel-subscription/' \
@@ -118,6 +127,10 @@ curl --location 'http://127.0.0.1:8000/services/api/v1/cancel-subscription/' \
 
 Endpoint: `GET /services/api/v1/exchange-rate/?base=USD&target=BDT`
 Fetches real-time exchange rates between two currencies using a public API.
+**Query Parameters:**
+
+* `base`: The base currency (e.g., USD)
+* `target`: The target currency (e.g., BDT)
 
 ```bash
 curl --location 'http://127.0.0.1:8000/services/api/v1/exchange-rate/?base=usd&target=bdt'
